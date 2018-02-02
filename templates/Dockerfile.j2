@@ -16,9 +16,6 @@ ENV PATH={{ home }}:$PATH
 
 COPY config {{ home }}
 
-# Add entrypoint wrapper script
-ADD docker-entrypoint /usr/local/bin
-
 # Provide a non-root user.
 RUN groupadd --gid 1000 apm-server && \
     useradd -M --uid 1000 --gid 1000 --home {{ home }} apm-server
@@ -31,9 +28,17 @@ RUN mkdir data logs && \
     chmod 0750 {{ binary_file }} && \
     chmod 0770 data logs
 
+FROM scratch
+
+COPY --from=0 /etc/passwd /etc/passwd
+COPY --from=0 /etc/group /etc/group
+COPY --from=0 --chown=root:apm-server {{ home }}/ {{ home }}/
+
+WORKDIR {{ home }}
+
 USER apm-server
 
 EXPOSE 8200
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+ENTRYPOINT ["{{ binary_file }}"]
 CMD ["-e"]

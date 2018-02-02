@@ -39,11 +39,6 @@ templates: venv
           templates/Dockerfile.j2 > build/apm-server/Dockerfile
 
 	jinja2 \
-	  -D version=$(ELASTIC_VERSION) \
-	  templates/docker-entrypoint.j2 > build/apm-server/docker-entrypoint
-	chmod +x build/apm-server/docker-entrypoint
-
-	jinja2 \
 	  -D version=$(VERSION_TAG) \
 	  -D registry=$(REGISTRY) \
 	  templates/docker-compose.yml.j2 > docker-compose.yml
@@ -102,6 +97,6 @@ venv: requirements.txt
 
 clean: venv
 	docker-compose down -v || true
-	rm -f docker-compose.yml build/*/Dockerfile build/*/config/*.sh build/*/docker-entrypoint
+	rm -f docker-compose.yml build/*/Dockerfile build/*/config/*.sh
 	rm -rf venv
 	find . -name __pycache__ | xargs rm -rf
